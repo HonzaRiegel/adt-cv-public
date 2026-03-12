@@ -3,22 +3,43 @@ import sys
 import timeit
 from typing import Callable
 
-N_RUNS = 5
+N_RUNS = 50
 
 def load_customers(shop_path: str) -> list[str]:
     """Načte data z konkrétní cesty a vrací seznam ID zákazníků."""
-    return []
+    customers:list[str] = []
+    try:
+        with open(shop_path,'r',encoding='utf8') as f:
+            next(f)
+            for line in f:
+                line.strip()
+                splitted = line.split(';')
+                time, ckpt, cid, price = splitted
+                customers.append(cid)
+    except Exception as e:
+        print(f'Something wrong {e}')
+
+    return customers
+    
 
 
 def check_ckpt_list(customers: list[str]) -> list[str]:
     """Varianta A: vrátí seznam unikátních zákazníků v seznamu."""
     seen: list[str] = []
+    for c in customers:
+        if c in seen:
+            continue
+        else:
+            seen.append(c)
+
     return seen
 
 
 def check_ckpt_set(customers: list[str]) -> set[str]:
     """Varianta B: vrátí množinu unikátních zákazníků v množin."""
     seen: set[str] = set()
+    for c in customers:
+        seen.add(c)
     return seen
 
 
@@ -28,7 +49,7 @@ def measure(
     n_runs: int = N_RUNS,
 ) -> float:
     """Změří čas běhu funkce func(customers) nástrojem timeit."""
-    return -1.0
+    return timeit.timeit(stmt=lambda:func(customers) ,number=n_runs)
 
 
 def experiment(data_path: str, city: str, shop: str, day: str = "1-Mon") -> None:
