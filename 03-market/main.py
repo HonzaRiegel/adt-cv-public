@@ -2,6 +2,7 @@ from collections import defaultdict
 import os
 import sys
 from dataclasses import dataclass
+import random
 
 @dataclass
 class Record:
@@ -30,7 +31,7 @@ def load_data(data_path: str, city: str, shop: str, day: str = "1-Mon") -> \
     city_data: dict[str, list[Record]] = defaultdict(list)
 
     print("loading", city)
-    path = os.path.join(data_path,city,day,shop+".txt")
+    path = os.path.join(data_path,'output',city,day,shop+".txt")
     try:
         with open(path,'r',encoding='utf8') as f:
             next(f)
@@ -89,11 +90,44 @@ def get_q_size(data: dict[str, list[Record]], seconds: int) -> int:
     before_pay = get_passed_set(filtred, ['frui','vege','meat'])
     paid = get_passed_set(filtred,['final-crs'])
     dist = before_pay.difference(paid)
-    return dist
+    return len(dist)
 
 def histogram(data: dict[str, list[Record]]) -> None:
     pass
 
+def find_longest_deque(data: dict[str, list[Record]])->tuple[str,int,int]:
+    '''
+    Argument data obsahuje podle míst poskládané záznamy o tom, jaký zákazník prošel tzv. checkpointem
+    v nějakém čase
+    Záměr funkce: vrátit místo, hodinu, počet zákazníků, kde bude počet zákazníků maximální
+    '''
+    list_of_tuples:list[tuple[str,int,int]] = []
+    for i,(k,rec) in enumerate(data.items()):
+        if i > 3:
+            break
+        dict_rec:dict[int,int] = defaultdict(int)
+        for v in rec:
+            time,id_cust = v.time,v.id_cust
+            time_to_hours = time//60
+            dict_rec[time_to_hours] += round(id_cust/id_cust)
+            max_h,max_cust = 0,0
+        for h,id in dict_rec.items():
+            if id>max_cust:
+                max_h = h
+                max_cust = id
+        t = (k,max_h,max_cust)
+        list_of_tuples.append(t)
+    
+    total_max = 0
+    total_h = 0
+    name:str
+    for k,h,s in list_of_tuples:
+        if s>total_max:
+            total_max = s
+            total_h = h
+            name = k
+    return (name,total_h,total_max)
+         
 def main(data_path: str) -> None:
     while True:
         city = input("Zadejte město (Plzeň): ")
@@ -108,14 +142,19 @@ def main(data_path: str) -> None:
         data = load_data(data_path, city, shop)
         if data is None:
             continue
-        nm = get_q_size(data,1140)
-
+        time = round(random.gauss(1500,0.25))
+        nm = get_q_size(data,time)
         print(nm)
-
+        t = find_longest_deque(data)
+        print(t)
         histogram(data)
+
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python main.py <data_path>")
-        sys.exit(1)
+        sys.exit()
     main(sys.argv[1])
+
+

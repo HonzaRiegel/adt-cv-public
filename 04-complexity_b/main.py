@@ -77,11 +77,11 @@ def main() -> None:
         print("Usage: python main.py <data_path> [city] [shop] [day]")
         print("Example: python main.py cities Plzeň shop_a 1-Mon")
         sys.exit(1)
-
+    
     data_path = sys.argv[1]
     if not os.path.isdir(data_path):
         print(f"Error: '{data_path}' is not a directory")
-        sys.exit(1)
+        sys.exit()
 
     # Defaultní hodnoty podobně jako v 03-26-market
     city = sys.argv[2] if len(sys.argv) > 2 else "Plzeň"
