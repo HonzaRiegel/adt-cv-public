@@ -89,15 +89,25 @@ def get_q_size(data: dict[str, list[Record]], seconds: int) -> int:
     filtred = filter_data_time(data,seconds)
     before_pay = get_passed_set(filtred, ['frui','vege','meat'])
     paid = get_passed_set(filtred,['final-crs'])
-    dist = before_pay.difference(paid)
-    return len(dist)
+    print(f"DEBUG: Checkpointy={len(before_pay)}, Zaplatilo={len(paid)}")
+    return len(before_pay-paid)
 
 def histogram(data: dict[str, list[Record]]) -> None:
     pass
+    for i,(k,rec) in enumerate(data.items()):
+        print(f'{i+1}-{k}')
+        rec_dict:defaultdict[int,int] = defaultdict(int)
+        for r in rec:
+            time_to_hours = r.time//3600
+            rec_dict[time_to_hours] += 1
+        for time,sum in rec_dict.items():
+            print(f'{time} {'-'*sum}')
+        print()
+
 
 def find_longest_deque(data: dict[str, list[Record]])->tuple[str,int,int]:
     '''
-    Argument data obsahuje podle míst poskládané záznamy o tom, jaký zákazník prošel tzv. checkpointem
+    Parametr data obsahuje podle míst poskládané záznamy o tom, jaký zákazník prošel tzv. checkpointem
     v nějakém čase
     Záměr funkce: vrátit místo, hodinu, počet zákazníků, kde bude počet zákazníků maximální
     '''
@@ -106,13 +116,14 @@ def find_longest_deque(data: dict[str, list[Record]])->tuple[str,int,int]:
     total_h = 0
     name:str = ''
     for i,(k,rec) in enumerate(data.items()):
-        if i > 3:
+        if i == 0:
+            continue
+        if i > 4:
             break
         dict_rec:dict[int,int] = defaultdict(int)
         for v in rec:
-            time,id_cust = v.time,v.id_cust
-            time_to_hours = time//60
-            dict_rec[time_to_hours] += round(id_cust/id_cust)   
+            time_to_hours = v.time//3600
+            dict_rec[time_to_hours] += 1  
         for h,id in dict_rec.items():
             if id>total_max:
                 total_h = h
@@ -136,11 +147,11 @@ def main(data_path: str) -> None:
         data = load_data(data_path, city, shop)
         if data is None:
             continue
-        time = round(random.gauss(1500,0.25))
+        time = random.randint(2000,40000)
         nm = get_q_size(data,time)
-        print(nm)
+        print(f'Before payment: {nm} in time: {time//3600}h:{(time%3600)//60}m:{(time%3600)%60}s')
         t = find_longest_deque(data)
-        print(t)
+        print(f'Longest deque\nPlace: {t[0]},Time: {t[1]}, Cust_sum: {t[2]}')
         histogram(data)
 
 
