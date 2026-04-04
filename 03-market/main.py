@@ -101,7 +101,10 @@ def find_longest_deque(data: dict[str, list[Record]])->tuple[str,int,int]:
     v nějakém čase
     Záměr funkce: vrátit místo, hodinu, počet zákazníků, kde bude počet zákazníků maximální
     '''
-    list_of_tuples:list[tuple[str,int,int]] = []
+    
+    total_max = 0
+    total_h = 0
+    name:str = ''
     for i,(k,rec) in enumerate(data.items()):
         if i > 3:
             break
@@ -109,24 +112,15 @@ def find_longest_deque(data: dict[str, list[Record]])->tuple[str,int,int]:
         for v in rec:
             time,id_cust = v.time,v.id_cust
             time_to_hours = time//60
-            dict_rec[time_to_hours] += round(id_cust/id_cust)
-            max_h,max_cust = 0,0
+            dict_rec[time_to_hours] += round(id_cust/id_cust)   
         for h,id in dict_rec.items():
-            if id>max_cust:
-                max_h = h
-                max_cust = id
-        t = (k,max_h,max_cust)
-        list_of_tuples.append(t)
-    
-    total_max = 0
-    total_h = 0
-    name:str
-    for k,h,s in list_of_tuples:
-        if s>total_max:
-            total_max = s
-            total_h = h
-            name = k
+            if id>total_max:
+                total_h = h
+                total_max = id
+                name = k
     return (name,total_h,total_max)
+                
+
          
 def main(data_path: str) -> None:
     while True:
