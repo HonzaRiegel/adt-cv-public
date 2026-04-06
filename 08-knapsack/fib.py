@@ -27,9 +27,9 @@ def fib_mem(n: int, lookup: dict[int, int]) -> int:
 def main() -> None:
     lookup: dict[int, int] = {}
 
-    a = 20 # to je hned
+    # a = 20 # to je hned
     # a = 30 # to už chvilku trvá
-    # a = 40 # za jak dlouho se asi dočkáme?
+    a = 90 # za jak dlouho se asi dočkáme? Nikdy
 
     measure_time(lambda: fib_cache(a), 100)
     measure_time(lambda: fib_mem(a, lookup), 100)
