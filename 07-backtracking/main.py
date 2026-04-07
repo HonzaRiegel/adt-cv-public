@@ -15,6 +15,7 @@ class SudokuSolver:
         try:
             with open(file_path,'r',encoding='utf8') as f:
                 for line in f:
+                    line = line.strip()
                     numbers = line.split(';')
                     numberlist:list[int] = []
                     try:

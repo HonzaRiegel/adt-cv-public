@@ -28,20 +28,27 @@ class SudokuCreator:
     def check_one_cell(self, row_index: int , column_index: int) -> bool:
         return self.check_row(row_index) and self.check_column(column_index) and self.check_block(row_index,column_index)
     
-    def create(self)->bool:
+    def get_empty(self)->tuple[int,int]|None:
         for i in range(9):
             for j in range(9):
-                if self.field[i, j] == 0:
-                    numbers = list(range(1, 10))
-                    random.shuffle(numbers)
-                    for n in numbers:
-                        self.field[i, j] = n
-                        if self.check_one_cell(i, j):
-                            if self.create():
-                                return True
-                        self.field[i, j] = 0
-                    return False
-        return True
+                if self.field[i,j] == 0:
+                    return (i,j)
+        return None
+    
+    def create(self)->bool:
+            empty = self.get_empty()
+            if not empty:
+                return True
+            row,col = empty
+            numbers = list(range(1, 10))
+            random.shuffle(numbers)
+            for n in numbers:
+                self.field[row, col] = n
+                if self.check_one_cell(row, col):
+                    if self.create():
+                        return True
+            self.field[row, col] = 0
+            return False
     
     def puzzle(self,count_of_empty:int):
         count = 0
