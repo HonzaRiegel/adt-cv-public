@@ -1,4 +1,5 @@
 from utils import measure_time
+import os
 
 
 # load data 2.616 1:32   ->  score is value, time is weight
@@ -68,14 +69,17 @@ def knapsack_mem(capacity: int, weights: list[int], values: list[float], n: int,
 
 
 def main() -> None:
-    values, weights = load_data("data/songs copy.txt")
+    directory = '08-knapsack'
+    data = 'data'
+    file = 'songs copy.txt'
+    path = os.path.join(directory,data,file)
+    values, weights = load_data(path=path)
     capacity = 4 * 60 # čtyři minuty
 
     mem: dict[tuple[int, int], float] = {}
 
     print(measure_time(lambda: knapsack_mem(capacity, weights, values, 0, mem)))
     print(measure_time(lambda: knapsack_backtrack(capacity, weights, values, 0)))
-
 
 if __name__ == "__main__":
     main()
