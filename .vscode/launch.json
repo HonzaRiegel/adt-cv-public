@@ -12,6 +12,14 @@
             "program": "01-intro/priklad2.py",
             "console": "integratedTerminal",
             "args": ""
+        },
+        {
+            "name": "Python Debugger: Fibonacci",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "08-knapsack/fib.py",
+            "console": "integratedTerminal",
+            "args": ""
         }
     ]
 }
