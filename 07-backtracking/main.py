@@ -16,16 +16,17 @@ class SudokuSolver:
         # convert nested list to numpy array
         try:
             with open(file_path,'r',encoding='utf8') as f:
-                linenum:list[int] = []
+
                 for line in f:
-                    numbs = line.split(';')
-                    for n in numbs:
-                        try:
-                            n_int = int(n)
-                        except ValueError:
-                            pass
-                        linenum.append(n_int)
-                loaded_rows.append(linenum)
+                    linenum:list[int] = []
+                    numbers = line.split(';')
+                    try:
+                        for n in numbers:
+                            linenum.append(int(n))
+                    except ValueError:
+                        continue
+                    
+                    loaded_rows.append(linenum)
         except FileNotFoundError:
             pass
 
@@ -35,15 +36,11 @@ class SudokuSolver:
 
 
     def check_sequence(self, sequence: np.ndarray) -> bool:
-        seen = set()
-        all_v = []
-        temp = sequence
-        temp = temp[temp != 0]
-        for n in temp:
+        seen:set[int] = set()
+        without_zeros = sequence[sequence != 0]
+        for n in without_zeros:
             seen.add(n)
-            all_v.append(n)
-        return len(seen) == len(all_v)
-
+        return len(seen) == len(without_zeros)
 
     def check_row(self, row_index: int) -> bool:
         return self.check_sequence(sequence=self.field[row_index,:])
@@ -55,7 +52,6 @@ class SudokuSolver:
         row_s_i = (row_index//3) *3
         collumn_s_i = (column_index//3) *3
         return self.check_sequence(sequence=self.field[row_s_i:row_s_i+3,collumn_s_i:collumn_s_i+3])
-
 
     def check_one_cell(self, row_index: int , column_index: int) -> bool:
         return self.check_row(row_index=row_index) and self.check_column(column_index=column_index) and self.check_block(row_index=row_index,column_index=column_index)
@@ -72,17 +68,20 @@ class SudokuSolver:
         """ Recursively solves the sudoku. """
         empty_cell = self.get_empty_cell()
         if not empty_cell:
-            
             return True
         row, col = empty_cell
 
         for v in range(1,10):
             self.field[row,col] = v
-            if self.check_one_cell(row_index=row,column_index=col) and self.solve():
-                return True
+            if self.check_one_cell(row_index=row,column_index=col):
+                if self.solve():
+                    return True
         self.field[row,col] = 0
 
         return False
+    
+    def __str__(self)->str:
+        return(str(self.field))
 
 
 
@@ -92,12 +91,11 @@ class SudokuSolver:
 def main() -> None:
     sudoku_solver = SudokuSolver()
     sudoku_solver.load(file_path=os.path.join('07-backtracking','sudoku.csv'))
-    result = sudoku_solver.solve()
-    if result:
-        print('naleyeno')
-        print(sudoku_solver.field)
+    print(sudoku_solver)
+    if sudoku_solver.solve():
+        print(sudoku_solver)
     else:
-        print('nenaleyeno')
+        print('Chyba')
 
 if __name__ == "__main__":
     main()
