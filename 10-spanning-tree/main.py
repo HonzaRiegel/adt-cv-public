@@ -49,7 +49,7 @@ def spanning_tree(graph: Graph) -> None:
     closed: set[int] = set()
     sp_tree: list[tuple[int, int]] = []
     queue: PriorityQueue = PriorityQueue()
-
+    
     painter = adthelpers.painter.Painter(
         graph,
         visible=queue,
