@@ -7,21 +7,31 @@
 
 import json
 from queue import PriorityQueue
-
+from collections import defaultdict
 import adthelpers
 
 
 class Graph:
     def __init__(self) -> None:
-        self.edges: dict[int, list[tuple[float, int]]] = {}
+        self.edges: dict[int, list[tuple[float, int]]] = defaultdict(list)
 
-    def add_edge(self, src: int, dst: int, weight: float = 0) -> None:
+    def add_edge(self, src: int, dst: int, weight: int = 0) -> None:
         # TODO 1 napište kód přidání hrany do datové struktury grafu
-        pass
+        self.edges[src].append((weight,dst))
+        self.edges[dst].append((weight,src))
 
 
 def load_graph(filename: str) -> Graph:
     graph = Graph()
+    with open(filename,'r') as f:
+        d = json.load(f)
+        for link in d['links']:
+            src = link['source']
+            dst = link['target']
+            w = link['weight']
+            graph.add_edge(src,dst,w)
+
+
 
     # TODO 2 vytvořte graf podle dat ze souboru
 
@@ -45,7 +55,7 @@ def spanning_tree(graph: Graph) -> None:
 
 
 def main() -> None:
-    graph = load_graph("09-spanning-tree/data/graph_grid_s3_3.json")
+    graph = load_graph('10-spanning-tree\data\graph_grid_s3_3.json')
 
     painter = adthelpers.painter.Painter(
         graph,
