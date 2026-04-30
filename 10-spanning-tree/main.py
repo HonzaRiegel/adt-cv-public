@@ -7,26 +7,20 @@
 
 import json
 from queue import PriorityQueue
-
+from collections import defaultdict
 import adthelpers
+from dataclasses import dataclass,field
 
 
 class Graph:
     def __init__(self) -> None:
-        self.edges: dict[int, list[tuple[float, int]]] = {}
+        self.edges: dict[int, list[tuple[float, int]]] = defaultdict(list)
 
     def add_edge(self, src: int, dst: int, weight: float = 0) -> None:
         # TODO 1 napište kód přidání hrany do datové struktury grafu
-        if src in self.edges:
-            self.edges[src].append((weight,dst))
-        else:
-            self.edges[src] = []
-            self.edges[src].append((weight,dst))
-        if dst in self.edges:
-            self.edges[dst].append((weight,src))
-        else:
-            self.edges[dst] = []
-            self.edges[dst].append((weight,src))
+        
+        self.edges[src].append((weight,dst))
+        self.edges[dst].append((weight,src))
         
 
 
@@ -56,6 +50,32 @@ def spanning_tree(graph: Graph) -> None:
         closed=closed,
         color_edges=sp_tree,
     )
+    @dataclass(order=True)
+    class PriorityEdge:
+        priority:float
+        edge:tuple[int,int] = field(compare=False)
+        def __getitem__(self, key):
+            return self.edge if key == 1 else self.priority
+        
+
+    for weight,dist in graph.edges[0]:
+        edge = PriorityEdge(weight,(0,dist))
+        queue.put(edge)
+
+    while not queue.empty():
+        current_edge = queue.get()
+        current_vertex = current_edge.edge[1]
+        if current_vertex not in closed:
+            closed.add(current_vertex)
+            sp_tree.append(current_edge.edge)
+            
+
+            for weight,dst in graph.edges[current_vertex]:
+                if dst not in closed:
+                    new_edge = PriorityEdge(weight,(current_vertex,dst))
+                    queue.put(new_edge)
+
+
     painter.draw_graph()
 
     # TODO 3 Implementujte Prim-Jarníkův algoritmus pro nalezení minimální kostry
