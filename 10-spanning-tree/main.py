@@ -9,7 +9,7 @@ import json
 from queue import PriorityQueue
 from collections import defaultdict
 import adthelpers
-from dataclasses import dataclass,field
+
 
 
 class Graph:
@@ -62,7 +62,7 @@ def spanning_tree(graph: Graph) -> None:
     from dataclasses import dataclass, field
     @dataclass(order=True)
     class PriorityEdge:
-        priority:int
+        priority:float
         edge:tuple[int,int] = field(compare=False)
         def __getitem__(self, key):
             if key > 1:
