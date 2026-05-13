@@ -8,24 +8,23 @@ import json
 from queue import PriorityQueue
 from tqdm import tqdm
 import adthelpers
-
+from collections import defaultdict
 import plotly.express as px
+import pandas as pd
 
 
 class Graph:
     def __init__(self, directed: bool = False) -> None:
-        self.edges: dict[int, list[tuple[float, int]]] = {}
+        self.edges: dict[int, list[tuple[float, int]]] = defaultdict(list)
         self.oriented = directed
         self.edge_count = 0
 
     def add_edge(self, src: int, dst: int, weight: float = 0) -> None:
-        
-        if src not in self.edges:
-            self.edges[src] = []
-        self.edges[src].append((weight, dst))
-        if dst not in self.edges:
-            self.edges[dst] = []
-        self.edges[dst].append((weight, src))
+        if self.oriented:
+            self.edges[src].append((weight,dst))
+        else:
+            self.edges[src].append((weight,dst))
+            self.edges[dst].append((weight,src))
 
     def dijkstra(
         self, start_id: int, end_id: int, show_progress: bool = True,
@@ -44,7 +43,7 @@ class Graph:
                 visible=queue,
                 closed=closed,
                 color_edges=sp_tree,
-                distances=distances,  # navic
+                  # navic
             )
             painter.draw_graph()
         else:
@@ -54,7 +53,7 @@ class Graph:
         from dataclasses import dataclass, field
         @dataclass(order=True)
         class PriorityEdge:
-            priority:int
+            priority:float
             edge:tuple[int,int] = field(compare=False)
             def __getitem__(self, key):
                 if key > 1:
@@ -63,7 +62,8 @@ class Graph:
         distances[start_id] = 0
         queue.put(PriorityEdge(0,(-1,start_id)))
         while not queue.empty():
-            current_priority,(start,dist) = queue.get()
+            item = queue.get()
+            start, dist = item.edge
             if dist not in closed:
                 closed.add(dist)
                 if painter:
@@ -110,11 +110,7 @@ def load_graph_csv(filename: str) -> Graph:
             start = int(data[0])
             target = int(data[1])
             weight = float(data[2])
-            if start in graph.edges:
-                graph.edges[start].append((weight,target))
-            else:
-                graph.edges[start] = []
-                graph.edges[start].append((weight,target))
+            graph.add_edge(start,target,weight)
 
 
     # TODO 3 Načtěte graf z CSV souboru
@@ -132,7 +128,7 @@ def reconstruct_path(
         path.append(current)
         if current == start_id:
             break
-        current = predecessors.get(current)
+        current = predecessors[current]
     path.reverse()
     return path
 
@@ -146,7 +142,15 @@ def load_nodes_metadata(filename: str) -> dict[int, tuple[str, str]]:
     """
     node_info = {}
     ## TODO 4 Načtěte metadata o uzlech z CSV souboru
-    
+    with open(filename,'r',encoding='utf-8') as f:
+        next(f)
+        for line in f:
+            args = line.split(',')
+            id = int(args[0])
+            s = args[1]
+            clean_s = s.replace("POINT(", "").replace(")", "").replace('"', '').strip()
+            lon, lat = clean_s.split()
+            node_info[id] = (lon,lat)
     return node_info
 
 
